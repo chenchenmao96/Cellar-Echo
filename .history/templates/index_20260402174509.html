@@ -288,25 +288,23 @@
 </head>
 
 <body>
-<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:flex; align-items:center; justify-content:center;">
-    <div class="login-card">
-        <h2 id="login-title">🍷 CellarEcho</h2>
-        <p id="login-sub">请使用 CellarTracker 账号验证</p>
+<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="background:var(--chat-bg); padding:40px; border-radius:12px; border:1px solid var(--burgundy); text-align:center; width:360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 id="login-title" style="color:var(--gold); margin-bottom:10px;">🍷 CellarEcho 登录</h2>
+        <p id="login-sub" style="font-size:0.85em; color:#888; margin-bottom:25px;">请使用 CellarTracker 账号验证</p>
         
-        <input type="text" id="login-user" placeholder="CT 用户名">
+        <input type="text" id="login-user" placeholder="CT 用户名" style="width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box;">
         
         <div style="position: relative; width: 100%;">
-            <input type="password" id="login-pass" placeholder="CT 密码">
-            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 20px; top: 12px; cursor: pointer; color: var(--burgundy); font-size: 1.2em;">
+            <input type="password" id="login-pass" placeholder="CT 密码" style="width:100%; margin-bottom:20px; padding:12px; box-sizing:border-box;">
+            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 12px; top: 10px; cursor: pointer; color: var(--gold); font-size: 1.2em; user-select: none;">
                 👁️
             </span>
         </div>
         
-        <button onclick="handleLogin()" class="login-btn">登录</button>
+        <button onclick="handleLogin()" style="background:var(--burgundy); color:white; width:100%; padding:14px; margin-bottom:15px; font-size:1em;">登录</button>
         
-        <div style="margin-top: 25px;">
-            <button onclick="toggleLang()" style="background:transparent; color:var(--burgundy); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
-        </div>
+        <button onclick="toggleLang()" style="background:transparent; color:var(--gold); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
         
         <p id="login-err-msg" style="color:#ff4d4d; font-size:0.85em; margin-top:15px; display:none;"></p>
     </div>

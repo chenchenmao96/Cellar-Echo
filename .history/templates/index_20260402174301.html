@@ -4,309 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CellarEcho - AI Sommelier</title>
-  <style>
-    /* --- 1. Gemini 核心配色变量 --- */
-    :root {
-        --burgundy: #8ab4f8;        /* Gemini 蓝 - 主色调 */
-        --gold: #c678dd;            /* 柔和紫 - 用户点缀色 */
-        --dark-bg: #131314;         /* 深灰背景 */
-        --chat-bg: #1e1f20;         /* 消息框背景 */
-        --text: #e3e3e3;            /* 柔和白色文字 */
-        --border: #444746;          /* Gemini 风格边框色 */
-    }
+    <style>
+        /* index.html 里的颜色变量替换 */
+:root {
+    --burgundy: #8ab4f8;        /* Gemini 蓝 - 用于主按钮和边框 */
+    --gold: #c678dd;            /* 紫色点缀 - 用于“你”的标识 */
+    --dark-bg: #131314;         /* Gemini 背景深灰色 */
+    --chat-bg: #1e1f20;         /* 消息框背景 */
+    --text: #e3e3e3;            /* 柔和的白色文字 */
+}
 
-    /* --- 2. 基础布局 --- */
-    body {
-        font-family: 'Google Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        background-color: var(--dark-bg);
-        color: var(--text);
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        height: 95vh;
-        transition: all 0.3s ease;
-    }
-
-    /* --- 3. 顶部控制栏 (Header) --- */
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-        border-bottom: 1px solid var(--border);
-    }
-
-    #ui-title {
-        font-size: 1.5rem;
-        font-weight: 500;
-        letter-spacing: -0.5px;
-    }
-
-    .controls {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
-    /* --- 4. 按钮与输入框 (Gemini 胶囊风格) --- */
-    input[type="text"]#user-id {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: #999;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.85em;
-        text-align: center;
-    }
-
-    button {
-        cursor: pointer;
-        padding: 8px 20px;
-        border: 1px solid var(--border);
-        border-radius: 20px; /* 胶囊圆角 */
-        transition: background 0.2s, transform 0.1s;
-        font-weight: 500;
-        background: transparent;
-        color: var(--text);
-    }
-
-    button:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    button:active {
-        transform: scale(0.98);
-    }
-
-    #sync-btn {
-        color: var(--burgundy);
-        border-color: var(--burgundy);
-    }
-
-    #sync-btn:hover {
-        background: rgba(138, 180, 248, 0.1);
-    }
-
-    #sync-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    /* --- 5. 聊天对话区 --- */
-    #chat-container {
-        flex: 1;
-        background: var(--dark-bg);
-        border-radius: 12px;
-        padding: 10px;
-        overflow-y: auto;
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .msg {
-        margin-bottom: 24px;
-        line-height: 1.6;
-        padding: 12px 18px;
-        border-radius: 22px; /* 大圆角 */
-        max-width: 85%;
-        font-size: 1rem;
-        position: relative;
-    }
-
-    /* 用户消息：带边框的深色块 */
-    .user-msg {
-        background: var(--chat-bg);
-        border: 1px solid var(--border);
-        margin-left: auto;
-        color: var(--text);
-        border-bottom-right-radius: 4px; /* 气泡尖角效果 */
-    }
-
-    /* AI 消息：无背景，纯文字流式感 */
-    .ai-msg {
-        background: transparent;
-        margin-right: auto;
-        padding-left: 0;
-        color: var(--text);
-    }
-
-    .msg b {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 0.85em;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .user-msg b { color: var(--gold); }
-    .ai-msg b { color: var(--burgundy); }
-
-    /* --- 6. 底部输入区域 --- */
-    .input-area {
-        display: flex;
-        gap: 12px;
-        background: var(--chat-bg);
-        padding: 8px 16px;
-        border-radius: 32px; /* 极大的圆角，模拟 Gemini 搜索栏 */
-        border: 1px solid var(--border);
-        align-items: center;
-    }
-
-    #user-input {
-        flex: 1;
-        padding: 10px 4px;
-        background: transparent;
-        border: none;
-        color: white;
-        outline: none;
-        font-size: 1rem;
-    }
-
-    #send-btn {
-        background-color: var(--burgundy);
-        color: #131314;
-        border: none;
-        width: auto;
-        padding: 8px 24px;
-    }
-
-    #send-btn:hover {
-        background-color: #aecbfa;
-    }
-
-    /* --- 7. 手机版适配 (Mobile Responsive) --- */
-    @media (max-width: 600px) {
         body {
-            padding: 10px;
-            height: 98vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
         }
 
+        /* 顶部控制栏 */
         .header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
-            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--burgundy);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .controls {
-            width: 100%;
-            justify-content: flex-start;
-            flex-wrap: wrap;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            background: #333;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
         }
 
         button {
-            padding: 6px 14px;
-            font-size: 0.9em;
+            cursor: pointer;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-weight: bold;
         }
 
+        #sync-btn { background-color: var(--burgundy); color: white; }
+        #sync-btn:hover { background-color: #a00028; }
+        #sync-btn:disabled { background-color: #444; cursor: not-allowed; }
+
+        #lang-btn { background-color: #444; color: white; }
+
+        /* 聊天区域 */
         #chat-container {
-            padding: 5px;
+            flex: 1;
+            background: var(--chat-bg);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
 
-        .msg {
-            max-width: 92%;
-            font-size: 0.95rem;
-            margin-bottom: 18px;
-        }
+        .msg { margin-bottom: 15px; line-height: 1.5; padding: 10px; border-radius: 6px; max-width: 85%; }
+        .user-msg { background: #3a3a3a; margin-left: auto; border-right: 4px solid var(--gold); }
+        .ai-msg { background: #2d2d2d; margin-right: auto; border-left: 4px solid var(--burgundy); }
 
+        /* 输入区域 */
         .input-area {
-            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
         }
+
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            background: #333;
+            border: 1px solid var(--burgundy);
+            color: white;
+            border-radius: 4px;
+        }
+
+        #send-btn { background-color: var(--gold); color: black; width: 100px; }
+        #send-btn:hover { background-color: #f1c40f; }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: var(--burgundy); border-radius: 10px; }
+
+
+        /* index.html 样式表末尾添加 */
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px; /* 缩小边距，腾出空间 */
+        height: 100vh; /* 撑满手机屏幕 */
     }
 
-    /* 滚动条美化 */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #555; }
+    .header {
+        flex-direction: column; /* 标题和控制栏改为上下排列 */
+        align-items: flex-start;
+        gap: 10px;
+    }
 
-    /* --- 登录遮罩层升级 --- */
-#login-overlay {
-    background: rgba(19, 19, 20, 0.85) !important; /* 更深邃的半透明 */
-    backdrop-filter: blur(12px); /* 👈 核心：毛玻璃效果，极具高级感 */
-}
+    .controls {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap; /* 按钮多时自动换行 */
+    }
 
-.login-card {
-    background: var(--chat-bg);
-    padding: 48px 40px;
-    border-radius: 28px; /* 更大的圆角 */
-    border: 1px solid var(--border);
-    text-align: center;
-    width: 380px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-}
+    #user-id {
+        width: 100px; /* 缩短 ID 显示框 */
+    }
 
-.login-card h2 {
-    color: var(--text);
-    font-weight: 500;
-    margin-bottom: 8px;
-}
+    #chat-container {
+        padding: 15px 10px; /* 减小内边距 */
+    }
 
-.login-card p {
-    color: #999;
-    margin-bottom: 32px;
-}
+    .msg {
+        max-width: 95%; /* 消息框在手机上可以更宽一些 */
+        font-size: 0.95em; /* 稍微调小字号 */
+    }
 
-/* 登录输入框：改为胶囊型 */
-.login-card input {
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: white;
-    padding: 14px 20px;
-    border-radius: 24px;
-    margin-bottom: 16px;
-    box-sizing: border-box;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-}
+    .input-area {
+        gap: 5px;
+        padding-bottom: 20px; /* 给手机底部的操作条留出空间 */
+    }
 
-.login-card input:focus {
-    border-color: var(--burgundy); /* 获取焦点时变蓝色 */
-    outline: none;
-}
+    #user-input {
+        padding: 10px;
+    }
 
-/* 登录按钮：科技感蓝色 */
-.login-btn {
-    background: var(--burgundy) !important;
-    color: #131314 !important;
-    width: 100%;
-    padding: 14px !important;
-    font-size: 1rem !important;
-    margin-top: 10px;
-    border: none !important;
+    #send-btn {
+        width: 70px; /* 缩小发送按钮 */
+    }
 }
-
-.login-btn:hover {
-    background: #aecbfa !important;
-}
-</style>
+    </style>
 </head>
 
 <body>
-<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:flex; align-items:center; justify-content:center;">
-    <div class="login-card">
-        <h2 id="login-title">🍷 CellarEcho</h2>
-        <p id="login-sub">请使用 CellarTracker 账号验证</p>
+<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="background:var(--chat-bg); padding:40px; border-radius:12px; border:1px solid var(--burgundy); text-align:center; width:360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 id="login-title" style="color:var(--gold); margin-bottom:10px;">🍷 CellarEcho 登录</h2>
+        <p id="login-sub" style="font-size:0.85em; color:#888; margin-bottom:25px;">请使用 CellarTracker 账号验证</p>
         
-        <input type="text" id="login-user" placeholder="CT 用户名">
+        <input type="text" id="login-user" placeholder="CT 用户名" style="width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box;">
         
         <div style="position: relative; width: 100%;">
-            <input type="password" id="login-pass" placeholder="CT 密码">
-            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 20px; top: 12px; cursor: pointer; color: var(--burgundy); font-size: 1.2em;">
+            <input type="password" id="login-pass" placeholder="CT 密码" style="width:100%; margin-bottom:20px; padding:12px; box-sizing:border-box;">
+            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 12px; top: 10px; cursor: pointer; color: var(--gold); font-size: 1.2em; user-select: none;">
                 👁️
             </span>
         </div>
         
-        <button onclick="handleLogin()" class="login-btn">登录</button>
+        <button onclick="handleLogin()" style="background:var(--burgundy); color:white; width:100%; padding:14px; margin-bottom:15px; font-size:1em;">登录</button>
         
-        <div style="margin-top: 25px;">
-            <button onclick="toggleLang()" style="background:transparent; color:var(--burgundy); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
-        </div>
+        <button onclick="toggleLang()" style="background:transparent; color:var(--gold); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
         
         <p id="login-err-msg" style="color:#ff4d4d; font-size:0.85em; margin-top:15px; display:none;"></p>
     </div>

@@ -223,90 +223,27 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     ::-webkit-scrollbar-thumb:hover { background: #555; }
-
-    /* --- 登录遮罩层升级 --- */
-#login-overlay {
-    background: rgba(19, 19, 20, 0.85) !important; /* 更深邃的半透明 */
-    backdrop-filter: blur(12px); /* 👈 核心：毛玻璃效果，极具高级感 */
-}
-
-.login-card {
-    background: var(--chat-bg);
-    padding: 48px 40px;
-    border-radius: 28px; /* 更大的圆角 */
-    border: 1px solid var(--border);
-    text-align: center;
-    width: 380px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-}
-
-.login-card h2 {
-    color: var(--text);
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-.login-card p {
-    color: #999;
-    margin-bottom: 32px;
-}
-
-/* 登录输入框：改为胶囊型 */
-.login-card input {
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: white;
-    padding: 14px 20px;
-    border-radius: 24px;
-    margin-bottom: 16px;
-    box-sizing: border-box;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-}
-
-.login-card input:focus {
-    border-color: var(--burgundy); /* 获取焦点时变蓝色 */
-    outline: none;
-}
-
-/* 登录按钮：科技感蓝色 */
-.login-btn {
-    background: var(--burgundy) !important;
-    color: #131314 !important;
-    width: 100%;
-    padding: 14px !important;
-    font-size: 1rem !important;
-    margin-top: 10px;
-    border: none !important;
-}
-
-.login-btn:hover {
-    background: #aecbfa !important;
-}
 </style>
 </head>
 
 <body>
-<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; display:flex; align-items:center; justify-content:center;">
-    <div class="login-card">
-        <h2 id="login-title">🍷 CellarEcho</h2>
-        <p id="login-sub">请使用 CellarTracker 账号验证</p>
+<div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="background:var(--chat-bg); padding:40px; border-radius:12px; border:1px solid var(--burgundy); text-align:center; width:360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <h2 id="login-title" style="color:var(--gold); margin-bottom:10px;">🍷 CellarEcho 登录</h2>
+        <p id="login-sub" style="font-size:0.85em; color:#888; margin-bottom:25px;">请使用 CellarTracker 账号验证</p>
         
-        <input type="text" id="login-user" placeholder="CT 用户名">
+        <input type="text" id="login-user" placeholder="CT 用户名" style="width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box;">
         
         <div style="position: relative; width: 100%;">
-            <input type="password" id="login-pass" placeholder="CT 密码">
-            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 20px; top: 12px; cursor: pointer; color: var(--burgundy); font-size: 1.2em;">
+            <input type="password" id="login-pass" placeholder="CT 密码" style="width:100%; margin-bottom:20px; padding:12px; box-sizing:border-box;">
+            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 12px; top: 10px; cursor: pointer; color: var(--gold); font-size: 1.2em; user-select: none;">
                 👁️
             </span>
         </div>
         
-        <button onclick="handleLogin()" class="login-btn">登录</button>
+        <button onclick="handleLogin()" style="background:var(--burgundy); color:white; width:100%; padding:14px; margin-bottom:15px; font-size:1em;">登录</button>
         
-        <div style="margin-top: 25px;">
-            <button onclick="toggleLang()" style="background:transparent; color:var(--burgundy); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
-        </div>
+        <button onclick="toggleLang()" style="background:transparent; color:var(--gold); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
         
         <p id="login-err-msg" style="color:#ff4d4d; font-size:0.85em; margin-top:15px; display:none;"></p>
     </div>
