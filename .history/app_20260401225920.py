@@ -33,7 +33,7 @@ def fetch_ct_data():
     
     try:
         print("🌐 正在连接 CellarTracker...")
-        headers = {'User-Agent': 'Mozilla/5.0 (VinoEcho/1.0; HCI Research)'}
+        headers = {'User-Agent': 'Mozilla/5.0 (CellarEcho/1.0; HCI Research)'}
         # 增加流式读取，防止大文件塞爆内存
         response = requests.get(url, headers=headers, timeout=30)
         
@@ -64,7 +64,7 @@ def chat():
     inventory = fetch_ct_data()
     
     system_prompt = f"""
-    你是 'VinoEcho' (窖响)，WSET Level 3 级侍酒师。
+    你是 'CellarEcho' (窖响)，WSET Level 3 级侍酒师。
     当前库存数据：{inventory}
     你的任务：根据数据推荐酒款及杯型（Josephine No. 3, Grassl Cru, Zalto 等）。
     """

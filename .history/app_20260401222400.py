@@ -36,7 +36,7 @@ def fetch_ct_data():
     url = f"https://www.cellartracker.com/xlquery.asp?User={CT_USER}&Format=csv&Table=List"
     try:
         # 添加 User-Agent 模拟浏览器，防止被拦截
-        headers = {'User-Agent': 'Mozilla/5.0 (VinoEcho/1.0; HCI Research)'}
+        headers = {'User-Agent': 'Mozilla/5.0 (CellarEcho/1.0; HCI Research)'}
         response = requests.get(url, headers=headers, timeout=15)
         
         if response.status_code == 200:
@@ -63,7 +63,7 @@ def chat():
     
     # 核心：结合酒窖 + 酒杯的专业 Prompt
     system_prompt = f"""
-    你是 'VinoEcho' (窖响)，一位拥有 WSET Level 3 水准的私人侍酒师助手。
+    你是 'CellarEcho' (窖响)，一位拥有 WSET Level 3 水准的私人侍酒师助手。
     
     【你的任务】
     1. 基于用户的酒窖数据回答问题：{inventory}
