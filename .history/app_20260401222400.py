@@ -35,36 +35,27 @@ def fetch_ct_data():
     
     url = f"https://www.cellartracker.com/xlquery.asp?User={CT_USER}&Format=csv&Table=List"
     try:
-        # 添加 User-Agent 模拟真实浏览器访问
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
+        # 添加 User-Agent 模拟浏览器，防止被拦截
+        headers = {'User-Agent': 'Mozilla/5.0 (VinoEcho/1.0; HCI Research)'}
         response = requests.get(url, headers=headers, timeout=15)
         
         if response.status_code == 200:
-            # 检查返回内容是否包含“未登录”提示（有时即使公开，接口也会抽风）
-            if "not logged into" in response.text.lower():
-                return "CellarTracker 接口提示：数据未公开或需要登录。"
+            if "Invalid User" in response.text or "Invalid Password" in response.text:
+                print("❌ CellarTracker 报错：凭据无效")
+                return "账号或密码错误，请检查环境变量。"
             
-            # 使用 pandas 处理 CSV 数据
             df = pd.read_csv(StringIO(response.text))
-            
-            # 只筛选你真正拥有的酒 (Quantity > 0)
-            if 'Quantity' in df.columns:
-                df = df[df['Quantity'] > 0]
-            
-            # 筛选对 AI 建议最有用的核心列
-            cols = ['Wine', 'Vintage', 'Varietal', 'DrinkBetween', 'Score', 'Quantity']
-            # 确保这些列在数据中确实存在
-            available_cols = [c for c in cols if c in df.columns]
-            
-            return df[available_cols].head(100).to_string(index=False)
+            # 筛选核心列
+            cols = ['Wine', 'Vintage', 'Type', 'Varietal', 'DrinkBetween', 'Score', 'Quantity', 'Location']
+            return df[cols].to_string(index=False)
         else:
-            return f"抓取失败，错误码: {response.status_code}"
+            print(f"❌ 抓取失败，状态码: {response.status_code}")
+            return f"CellarTracker 连接失败 (错误码: {response.status_code})"
             
     except Exception as e:
+        print(f"❌ 发生异常: {e}")
         return f"系统异常: {str(e)}"
-    
+
 @app.route('/chat', methods=['POST'])
 def chat():
     user_query = request.json.get("message")
