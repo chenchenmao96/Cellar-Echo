@@ -203,9 +203,10 @@ def chat():
 
     # 8. 返回流式响应
     return Response(generate(), mimetype='text/plain', headers={
-        'X-Accel-Buffering': 'no',
-            'Cache-Control': 'no-cache',
-            'Transfer-Encoding': 'chunked'
+        'X-Accel-Buffering': 'no',     # 👈 核心：禁止 Nginx 缓冲
+        'Cache-Control': 'no-cache',    # 禁止浏览器缓存
+        'Connection': 'keep-alive',      # 保持长连接
+        'Transfer-Encoding': 'chunked'  # 明确告知是分块传输
     })
 if __name__ == '__main__':
     # 把 port 改成 5001
