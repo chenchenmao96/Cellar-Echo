@@ -106,26 +106,20 @@
 
 <body>
 <div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(26,26,26,0.95); z-index:9999; display:flex; align-items:center; justify-content:center;">
-    <div style="background:var(--chat-bg); padding:40px; border-radius:12px; border:1px solid var(--burgundy); text-align:center; width:360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <h2 id="login-title" style="color:var(--gold); margin-bottom:10px;">🍷 CellarEcho 登录</h2>
-        <p id="login-sub" style="font-size:0.85em; color:#888; margin-bottom:25px;">请使用 CellarTracker 账号验证</p>
-        
-        <input type="text" id="login-user" placeholder="CT 用户名" style="width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box;">
-        
-        <div style="position: relative; width: 100%;">
+        <div style="background:var(--chat-bg); padding:40px; border-radius:12px; border:1px solid var(--burgundy); text-align:center; width:360px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h2 id="login-title" style="color:var(--gold); margin-bottom:10px;">🍷 CellarEcho 登录</h2>
+            <p id="login-sub" style="font-size:0.85em; color:#888; margin-bottom:25px;">请使用 CellarTracker 账号验证</p>
+            
+            <input type="text" id="login-user" placeholder="CT 用户名" style="width:100%; margin-bottom:15px; padding:12px; box-sizing:border-box;">
             <input type="password" id="login-pass" placeholder="CT 密码" style="width:100%; margin-bottom:20px; padding:12px; box-sizing:border-box;">
-            <span id="toggle-pass" onclick="togglePassword()" style="position: absolute; right: 12px; top: 10px; cursor: pointer; color: var(--gold); font-size: 1.2em; user-select: none;">
-                👁️
-            </span>
+            
+            <button onclick="handleLogin()" style="background:var(--burgundy); color:white; width:100%; padding:14px; margin-bottom:15px; font-size:1em;">登录</button>
+            
+            <button onclick="toggleLang()" style="background:transparent; color:var(--gold); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
+            
+            <p id="login-err-msg" style="color:#ff4d4d; font-size:0.85em; margin-top:15px; display:none;"></p>
         </div>
-        
-        <button onclick="handleLogin()" style="background:var(--burgundy); color:white; width:100%; padding:14px; margin-bottom:15px; font-size:1em;">登录</button>
-        
-        <button onclick="toggleLang()" style="background:transparent; color:var(--gold); border:none; text-decoration:underline; font-size:0.9em; cursor:pointer;" id="login-lang-btn">English</button>
-        
-        <p id="login-err-msg" style="color:#ff4d4d; font-size:0.85em; margin-top:15px; display:none;"></p>
     </div>
-</div>
     <div class="header">
         <h1 id="ui-title">🍷 CellarEcho</h1>
     <div class="controls">
@@ -222,18 +216,6 @@
         localStorage.setItem('vino_lang', currentLang);
         updateUI();
     }
-    function togglePassword() {
-    const passInput = document.getElementById('login-pass');
-    const toggleBtn = document.getElementById('toggle-pass');
-    
-    if (passInput.type === "password") {
-        passInput.type = "text";
-        toggleBtn.innerText = "🙈"; // 隐藏状态图标
-    } else {
-        passInput.type = "password";
-        toggleBtn.innerText = "👁️"; // 显示状态图标
-    }
-}
     function handleLogout() {
     // 1. 确认操作 (可选)
     const t = i18n[currentLang];
@@ -315,22 +297,20 @@
                 })
             });
             const data = await response.json();
-           if (data.status === 'success') {
-            // 👈 移除 alert，改为按钮反馈
-            btn.innerText = "✅ " + (currentLang === 'zh' ? '同步成功' : 'Success');
-            setTimeout(() => {
-                btn.innerText = t.sync;
-                btn.disabled = false;
-            }, 3000); 
-        } else {
-            btn.innerText = "❌ " + (currentLang === 'zh' ? '失败' : 'Failed');
+            if (data.status === 'success') {
+               btn.innerText = "✅ " + (currentLang === 'zh' ? '同步成功' : 'Success');
+            } else {
+               btn.innerText = "❌ " + (currentLang === 'zh' ? '失败' : 'Failed');
             btn.disabled = false;
+            }
+        } catch (error) {
+            alert(t.sync_err);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = t.sync;
         }
-    } catch (error) {
-        btn.innerText = "❌ Error";
-        btn.disabled = false;
     }
-}
+
     // --- 5. 聊天对话 (流式) ---
     async function sendMessage() {
         const input = document.getElementById('user-input');
