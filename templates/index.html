@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wine Cellar Assistant</title>
+    <style>
+        :root {
+            --primary-color: #722f37; /* 酒红色 */
+            --bg-color: #f8f9fa;
+            --chat-bg: #ffffff;
+            --user-msg: #e8f0fe;
+            --bot-msg: #f1f1f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 900px;
+            height: 80vh;
+            display: flex;
+            background: var(--chat-bg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* 左侧侧边栏：显示状态和快捷键 */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); pb: 10px; }
+
+        .status-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .quick-actions button {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .quick-actions button:hover { background: rgba(255,255,255,0.2); }
+
+        /* 右侧聊天区 */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        #chat-window {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 15px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message.bot { align-self: flex-start; background: var(--bot-msg); border-bottom-left-radius: 2px; }
+        .message.user { align-self: flex-end; background: var(--user-msg); border-bottom-right-radius: 2px; }
+
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        #send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Wine Assistant</h2>
+        <div class="status-card">
+            <div>酒窖状态: <span id="status-text">正在同步...</span></div>
+            <div style="margin-top:5px; font-size:0.8rem; opacity:0.8;">数据源: CellarTracker</div>
+        </div>
+        
+        <div class="quick-actions">
+            <p style="font-size: 0.8rem; opacity: 0.7;">快捷询问:</p>
+            <button onclick="quickAsk('我现在有哪些酒可以喝？')">🍷 现在适饮</button>
+            <button onclick="quickAsk('帮我找一瓶 95 分以上的红酒')">🌟 高分精选</button>
+            <button onclick="quickAsk('哪些酒快过饮用期了？')">⏳ 优先饮用</button>
+            <button onclick="quickAsk('我的酒窖里有多少瓶 Pinot Noir？')">🍇 品种统计</button>
+        </div>
+    </div>
+
+    <div class="chat-area">
+        <div id="chat-window">
+            <div class="message bot">你好！我是你的私人酒窖助理。我已经准备好连接你的 CellarTracker 清单了。你想了解哪瓶酒？</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="问问关于你的藏酒...">
+            <button id="send-btn">发送</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+    const statusText = document.getElementById('status-text');
+
+    // 添加消息到窗口
+    function addMessage(text, sender) {
+        const div = document.createElement('div');
+        div.classList.add('message', sender);
+        div.innerText = text;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // 发送消息到后端 (稍后连接 Python)
+    async function sendMessage(text) {
+        if (!text.trim()) return;
+        
+        addMessage(text, 'user');
+        userInput.value = '';
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await response.json();
+            addMessage(data.reply, 'bot');
+        } catch (e) {
+            addMessage("抱歉，我连接不到后端服务器，请检查 Render 部署状态。", 'bot');
+        }
+    }
+
+    function quickAsk(text) {
+        sendMessage(text);
+    }
+
+    sendBtn.onclick = () => sendMessage(userInput.value);
+    userInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(userInput.value); };
+
+    // 模拟数据加载成功的状态（后端完成后可改为真实逻辑）
+    setTimeout(() => { statusText.innerText = "已连接 (maocc1996)"; statusText.style.color = "#4CAF50"; }, 2000);
+
+</script>
+
+</body>
+</html>
