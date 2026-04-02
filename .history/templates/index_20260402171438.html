@@ -243,7 +243,6 @@ let currentUserId = "Guest"; // 👈 新增：全局存储当前用户 ID
 
     // 2. 清空核心变量
     global_ct_pass = ""; 
-    currentUserId = "Guest"; // 👈 重置为访回
     document.getElementById('user-id').value = "";
     
     // 3. 清空聊天记录（保护隐私）
@@ -281,7 +280,6 @@ let currentUserId = "Guest"; // 👈 新增：全局存储当前用户 ID
         if (response.ok) {
             // 1. 登录成功：记录 ID 和密码
             document.getElementById('user-id').value = data.user_id;
-            currentUserId = data.user_id; // 👈 关键：同步更新全局变量
             global_ct_pass = pass; 
             
             // 2. 隐藏遮罩层并更新 UI
