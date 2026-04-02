@@ -137,7 +137,7 @@
     <div id="login-overlay">
         <div class="login-card">
             <h2 id="login-title">🍷 CellarEcho</h2>
-            <p id="login-sub">登录以开启酒窖对话</p>
+            <p id="login-sub">登录以管理您的私人酒柜</p>
             <input type="text" id="login-user" placeholder="用户名">
             <div style="position: relative;">
                 <input type="password" id="login-pass" placeholder="密码">
@@ -173,17 +173,16 @@
     </div>
 
 <script>
-// --- 修正后的 i18n 配置，突出“对话”功能 ---
-    const i18n = {
+  const i18n = {
         zh: { 
             title: "CellarEcho", 
-            welcome: "你好。我是您的 AI 侍酒师。今天想喝哪瓶藏酒？", 
+            welcome: "你好，陈陈。我是您的 AI 侍酒师。今天想喝哪瓶藏酒？", 
             sync: "🔄 同步", 
             syncing: "⌛ 同步中...", 
             lang_label: "English", 
             placeholder: "问问 AI 今晚喝哪瓶...", 
-            login_title: "🍷 CellarEcho",
-            login_sub: "登录以开启酒窖对话", // 👈 这里改为了“对话”
+            login_title: "🍷 CellarEcho 登录",
+            login_sub: "登录以管理您的私人酒柜",
             login_user: "用户名",
             login_pass: "密码",
             login_btn: "登录",
@@ -196,8 +195,8 @@
             syncing: "⌛ Syncing...", 
             lang_label: "中文", 
             placeholder: "Ask AI about your wine...", 
-            login_title: "🍷 CellarEcho",
-            login_sub: "Login to chat with your cellar", // 👈 对应英文改为“Chat”
+            login_title: "🍷 CellarEcho Login",
+            login_sub: "Login to manage your cellar",
             login_user: "Username",
             login_pass: "Password",
             login_btn: "Login",

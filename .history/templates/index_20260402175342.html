@@ -137,7 +137,7 @@
     <div id="login-overlay">
         <div class="login-card">
             <h2 id="login-title">🍷 CellarEcho</h2>
-            <p id="login-sub">登录以开启酒窖对话</p>
+            <p id="login-sub">登录以管理您的私人酒柜</p>
             <input type="text" id="login-user" placeholder="用户名">
             <div style="position: relative;">
                 <input type="password" id="login-pass" placeholder="密码">
@@ -173,61 +173,27 @@
     </div>
 
 <script>
-// --- 修正后的 i18n 配置，突出“对话”功能 ---
     const i18n = {
-        zh: { 
-            title: "CellarEcho", 
-            welcome: "你好。我是您的 AI 侍酒师。今天想喝哪瓶藏酒？", 
-            sync: "🔄 同步", 
-            syncing: "⌛ 同步中...", 
-            lang_label: "English", 
-            placeholder: "问问 AI 今晚喝哪瓶...", 
-            login_title: "🍷 CellarEcho",
-            login_sub: "登录以开启酒窖对话", // 👈 这里改为了“对话”
-            login_user: "用户名",
-            login_pass: "密码",
-            login_btn: "登录",
-            login_err: "账号或密码错误" 
-        },
-        en: { 
-            title: "CellarEcho", 
-            welcome: "Hello. I'm your AI Sommelier. Which bottle shall we open today?", 
-            sync: "🔄 Sync", 
-            syncing: "⌛ Syncing...", 
-            lang_label: "中文", 
-            placeholder: "Ask AI about your wine...", 
-            login_title: "🍷 CellarEcho",
-            login_sub: "Login to chat with your cellar", // 👈 对应英文改为“Chat”
-            login_user: "Username",
-            login_pass: "Password",
-            login_btn: "Login",
-            login_err: "Incorrect credentials" 
-        }
+        zh: { title: "CellarEcho", welcome: "你好，陈陈。我是您的 AI 侍酒师。今天想喝哪瓶藏酒？", sync: "🔄 同步", syncing: "⌛ 同步中...", lang_label: "English", placeholder: "问问 AI 今晚喝哪瓶...", login_err: "账号或密码错误" },
+        en: { title: "CellarEcho", welcome: "Hello. I'm your AI Sommelier. Which bottle shall we open today?", sync: "🔄 Sync", syncing: "⌛ Syncing...", lang_label: "中文", placeholder: "Ask AI about your wine...", login_err: "Incorrect credentials" }
     };
 
     let currentLang = localStorage.getItem('vino_lang') || 'zh';
     let currentUserId = "Guest";
     let global_ct_pass = "";
 
-    // --- 2. 增强的 UI 更新函数 ---
+    function formatMarkdown(text) {
+        if (!text) return "";
+        return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+    }
+
     function updateUI() {
         const t = i18n[currentLang];
-        
-        // 更新主界面
         document.getElementById('ui-title').innerText = t.title;
         document.getElementById('sync-btn').innerText = t.sync;
         document.getElementById('user-input').placeholder = t.placeholder;
         document.getElementById('lang-btn').innerText = currentLang === 'zh' ? "EN" : "中文";
-        
-        // 👈 核心修复：更新登录界面的所有文字
-        document.getElementById('login-title').innerText = t.login_title;
-        document.getElementById('login-sub').innerText = t.login_sub;
-        document.getElementById('login-user').placeholder = t.login_user;
-        document.getElementById('login-pass').placeholder = t.login_pass;
         document.getElementById('login-lang-btn').innerText = t.lang_label;
-        const loginBtn = document.querySelector('.login-btn');
-        if (loginBtn) loginBtn.innerText = t.login_btn;
-
         if(document.getElementById('chat-container').children.length <= 1) {
             document.getElementById('welcome-msg').innerText = t.welcome;
         }
