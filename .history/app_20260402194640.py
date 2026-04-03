@@ -136,6 +136,10 @@ def chat():
     # 修正 Bug：判断字符串中是否包含“为空”或“empty”
     is_inventory_loading = "为空" in inventory or "empty" in inventory.lower()
     # 🚀 --- 调试打印开始 ---
+    print("\n" + "="*50)
+    print(f"🔍 正在为用户查询酒柜: {user_id}")
+    print(f"📊 数据库返回的内容预览:\n{inventory}")
+    print("="*50 + "\n")
     prompt_content = f"""
         【身份锁定】：你是全球顶尖的 'CellarEcho'。
         【核心头衔】：你同时拥有 Master of Wine (MW) 和 Master of Sommelier (MS) 认证。
@@ -150,14 +154,14 @@ def chat():
         3. **专家级分析**：你的 MW 和 MS 级专业性必须体现在对上述具体酒款（如 2018 Château Lafite Rothschild, 2015 Château Margaux 等）的垂直深度分析上。
         4. **响应要求**：如果用户问“我有多少酒”或“我有什么酒”，你必须通过对上方 {inventory} 数据的统计和梳理直接给出答案。
         5. 如果需要额外的信息从用户，可以随时问用户一些帮助你更好回答的信息。 
-        6. 禁止使用：严禁使用 ### 标题、--- 分割线或 [!TIP] 等符号。
+        6.. 禁止使用：严禁使用 ### 标题、--- 分割线或 [!TIP] 等符号。
                 结构布局：
                 第一行直接给出 粗体结论。
                 段落之间使用 一个空行 分隔。
                 使用 粗体字 引导不同的小节内容，不要使用标题。
                 数据呈现：
                 统计信息使用 Markdown Table。
-                适饮状态使用进度条要好看，容易看懂
+                适饮状态使用进度条：如 [🍷🍷🍷░░] PEAK。
                 篇幅控制：常规建议 200 字左右。
         回复语言：{"中文" if lang == "zh" else "English"}。
         """

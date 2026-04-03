@@ -136,6 +136,10 @@ def chat():
     # 修正 Bug：判断字符串中是否包含“为空”或“empty”
     is_inventory_loading = "为空" in inventory or "empty" in inventory.lower()
     # 🚀 --- 调试打印开始 ---
+    print("\n" + "="*50)
+    print(f"🔍 正在为用户查询酒柜: {user_id}")
+    print(f"📊 数据库返回的内容预览:\n{inventory}")
+    print("="*50 + "\n")
     prompt_content = f"""
         【身份锁定】：你是全球顶尖的 'CellarEcho'。
         【核心头衔】：你同时拥有 Master of Wine (MW) 和 Master of Sommelier (MS) 认证。
@@ -157,7 +161,7 @@ def chat():
                 使用 粗体字 引导不同的小节内容，不要使用标题。
                 数据呈现：
                 统计信息使用 Markdown Table。
-                适饮状态使用进度条要好看，容易看懂
+                适饮状态使用进度条：如 [🍷🍷🍷░░] PEAK。
                 篇幅控制：常规建议 200 字左右。
         回复语言：{"中文" if lang == "zh" else "English"}。
         """

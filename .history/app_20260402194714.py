@@ -136,6 +136,10 @@ def chat():
     # 修正 Bug：判断字符串中是否包含“为空”或“empty”
     is_inventory_loading = "为空" in inventory or "empty" in inventory.lower()
     # 🚀 --- 调试打印开始 ---
+    print("\n" + "="*50)
+    print(f"🔍 正在为用户查询酒柜: {user_id}")
+    print(f"📊 数据库返回的内容预览:\n{inventory}")
+    print("="*50 + "\n")
     prompt_content = f"""
         【身份锁定】：你是全球顶尖的 'CellarEcho'。
         【核心头衔】：你同时拥有 Master of Wine (MW) 和 Master of Sommelier (MS) 认证。
