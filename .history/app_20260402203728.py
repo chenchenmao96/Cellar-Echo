@@ -43,46 +43,25 @@ def login():
     except Exception as e:
         return jsonify({"status": "error", "message": "无法连接到 CellarTracker"}), 500
 
-
 @app.route('/update_cellar', methods=['POST'])
 def update_cellar():
     data = request.json
     user_id = data.get("user_id").lower()
-    ct_pass = data.get("ct_pass")  # 👈 确认这里与前端 index.html 的键名一致
+    ct_pass = data.get("ct_pass") # 👈 从前端接收用户刚才登录的密码
     
-    if not ct_pass:
-        return jsonify({"status": "error", "message": "未接收到有效密码"}), 400
-
-    # 1. 核心修复：对密码进行 URL 编码
-    # 这样即便密码里有 & 或 #，也不会破坏 CellarTracker 的请求链接
-    safe_pass = urllib.parse.quote(ct_pass)
-    url = f"https://www.cellartracker.com/xlquery.asp?User={user_id}&Password={safe_pass}&Format=csv&Table=Inventory"
-    
+    url = f"https://www.cellartracker.com/xlquery.asp?User={user_id}&Password={ct_pass}&Format=csv&Table=Inventory"
     try:
-        # 2. 增加超时控制，防止请求卡死
         response = requests.get(url, timeout=30)
-        
-        # 3. 稳健性检查：只有返回 200 且内容包含 "Wine" 才是真正的 CSV
-        if response.status_code == 200 and "Wine" in response.text:
+        if response.status_code == 200:
             df = pd.read_csv(StringIO(response.text))
-            
-            # 4. 容错处理：确保 CSV 结构正确
-            if 'QuantityCommunity' in df.columns:
-                # 过滤库存 > 0 的酒款
-                wine_data = df[df['QuantityCommunity'] > 0].to_dict('records')
-                
-                # 5. 调用数据库同步逻辑
-                count = cellar_db.sync_inventory(user_id, wine_data)
-                return jsonify({"status": "success", "count": count})
-            else:
-                return jsonify({"status": "error", "message": "CSV 格式不匹配"}), 400
-                
-        return jsonify({"status": "error", "message": "CellarTracker 拒绝访问或账号错误"}), 401
-        
+            # 过滤掉库存为 0 的，转为字典列表
+            wine_data = df[df['QuantityCommunity'] > 0].to_dict('records')
+            # 调用数据库模块同步
+            count = cellar_db.sync_inventory(user_id, wine_data)
+            return jsonify({"status": "success", "count": count})
+        return jsonify({"status": "error", "message": "CT 返回错误"}), 400
     except Exception as e:
-        # 6. 将具体的错误信息打出，方便你在日志里查看
-        print(f"❌ 同步过程中发生异常: {str(e)}")
-        return jsonify({"status": "error", "message": "服务器内部错误，请检查后台日志"}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 def run_summary_in_background(user_id, long_term_summary, old_text):
     """
