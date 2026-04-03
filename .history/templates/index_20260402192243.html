@@ -156,7 +156,7 @@
         <div class="controls">
             <input type="text" id="user-id" readonly style="width:70px; background:var(--sidebar-bg); border:none; color:var(--text-sub); border-radius:12px; text-align:center; font-size:0.75rem; padding:4px;">
             <button id="sync-btn" onclick="syncCellar()" style="color:var(--primary-blue); border-color:var(--primary-blue); font-size:0.85rem;">🔄 同步</button>
-            <button id="logout-btn" onclick="location.reload()" style="font-size:0.85rem;">登出</button>
+            <button onclick="location.reload()" style="font-size:0.85rem;">登出</button>
             <button id="lang-btn" onclick="toggleLang()" style="font-size:0.85rem;">EN</button>
         </div>
     </div>
@@ -175,39 +175,30 @@
 <script>
     // --- 1. 全局配置 ---
     const i18n = {
-    zh: { 
-        title: "CellarEcho", 
-        welcome: "你好。我是您的 AI 侍酒师。今天想喝哪瓶藏酒？", 
-        sync: "🔄 同步", 
-        syncing: "⌛ 同步中...", 
-        lang_label: "English", 
-        placeholder: "问问 AI 今晚喝哪瓶...", 
-        logout: "登出",
-        send: "发送",
-        login_title: "🍷 CellarEcho",
-        login_sub: "登录以开启酒窖对话",
-        login_user: "用户名",
-        login_pass: "密码",
-        login_btn: "登录",
-        login_err: "账号或密码错误" 
-    },
-    en: { 
-        title: "CellarEcho", 
-        welcome: "Hello. I'm your AI Sommelier. Which bottle shall we open today?", 
-        sync: "🔄 Sync", 
-        syncing: "⌛ Syncing...", 
-        lang_label: "中文", 
-        placeholder: "Ask AI about your wine...", 
-        logout: "Logout",
-        send: "Send",
-        login_title: "🍷 CellarEcho",
-        login_sub: "Login to chat with your cellar",
-        login_user: "Username",
-        login_pass: "Password",
-        login_btn: "Login",
-        login_err: "Incorrect credentials" 
-    }
-};
+        zh: { 
+            title: "CellarEcho", 
+            welcome: "你好。我是您的 AI 侍酒师。今天想喝哪瓶藏酒？", 
+            sync: "🔄 同步", 
+            syncing: "⌛ 同步中...", 
+            lang_label: "English", 
+            placeholder: "问问 AI 今晚喝哪瓶...", 
+            logout: "登出",
+            send: "发送",
+            login_err: "账号或密码错误" 
+        },
+        en: { 
+            title: "CellarEcho", 
+            welcome: "Hello. I'm your AI Sommelier. Which bottle shall we open today?", 
+            sync: "🔄 Sync", 
+            syncing: "⌛ Syncing...", 
+            lang_label: "中文", 
+            placeholder: "Ask AI about your wine...", 
+            logout: "Logout",
+            send: "Send",
+            login_err: "Incorrect credentials" 
+        }
+    };
+
     let currentLang = localStorage.getItem('vino_lang') || 'zh';
     let currentUserId = "Guest"; // 👈 默认值，防止 ReferenceError
     let global_ct_pass = "";
