@@ -160,7 +160,7 @@ def chat():
     user_id = data.get("user_id", "Guest").lower() 
     user_query = data.get("message")
     lang = data.get("lang", "zh")
-    cellar_db.save_chat_and_check_limit(user_id, "user", user_query)
+    
 # 1. 获取用户信息（确保数据库返回了 nickname 和 glassware 字段）
     user_info = cellar_db.get_user_summary(user_id)
     nickname = user_info.get("nickname")
@@ -229,7 +229,7 @@ def chat():
 
             # 6. 流式传输结束后，异步处理数据持久化
             # 存入用户消息和 AI 回复
-            #cellar_db.save_chat_and_check_limit(user_id, "user", user_query)
+            cellar_db.save_chat_and_check_limit(user_id, "user", user_query)
             total_count = cellar_db.save_chat_and_check_limit(user_id, "assistant", full_reply)
             
             # 7. 自动触发记忆压缩与摘要

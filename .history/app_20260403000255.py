@@ -151,8 +151,6 @@ def run_summary_in_background(user_id, long_term_summary, old_text):
 
     except Exception as e:
         print(f"⚠️ 记忆整理出错: {e}")
-
-
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
@@ -160,12 +158,11 @@ def chat():
     user_id = data.get("user_id", "Guest").lower() 
     user_query = data.get("message")
     lang = data.get("lang", "zh")
-    cellar_db.save_chat_and_check_limit(user_id, "user", user_query)
+    
 # 1. 获取用户信息（确保数据库返回了 nickname 和 glassware 字段）
     user_info = cellar_db.get_user_summary(user_id)
     nickname = user_info.get("nickname")
     glassware = user_info.get("glassware")
-    fact_memory = user_info.get("fact_memory")
     long_term_summary = user_info.get("summary")
     
     # 2. 获取库存并检查状态
@@ -176,11 +173,7 @@ def chat():
     prompt_content = f"""
         【身份锁定】：你是全球顶尖的 'CellarEcho'。
         【核心头衔】：你同时拥有 Master of Wine (MW) 和 Master of Sommelier (MS) 认证。
-        【当前客户画像】：
-        - 姓名/昵称：{nickname}
-        - 硬件资产：{glassware}
-        - 核心背景事实：{fact_memory} 
-        - 长期记忆摘要：{long_term_summary}
+        【当前客户】：{nickname}
         
         【实时酒柜数据】：
         {inventory}
@@ -229,7 +222,7 @@ def chat():
 
             # 6. 流式传输结束后，异步处理数据持久化
             # 存入用户消息和 AI 回复
-            #cellar_db.save_chat_and_check_limit(user_id, "user", user_query)
+            cellar_db.save_chat_and_check_limit(user_id, "user", user_query)
             total_count = cellar_db.save_chat_and_check_limit(user_id, "assistant", full_reply)
             
             # 7. 自动触发记忆压缩与摘要
