@@ -377,7 +377,7 @@
         });
         const data = await res.json();
         if (res.ok) {
-            user_id = data.user_id;
+            currentUserId = data.user_id;
             password = pass;
             document.getElementById('user-id').value = currentUserId;
             // 👈 核心：隐藏登录遮罩并更新一次 UI

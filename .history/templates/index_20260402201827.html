@@ -377,8 +377,8 @@
         });
         const data = await res.json();
         if (res.ok) {
-            user_id = data.user_id;
-            password = pass;
+            currentUserId = data.user_id;
+            global_ct_pass = pass;
             document.getElementById('user-id').value = currentUserId;
             // 👈 核心：隐藏登录遮罩并更新一次 UI
             document.getElementById('login-overlay').style.display = 'none';
