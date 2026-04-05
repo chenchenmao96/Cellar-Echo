@@ -455,16 +455,7 @@ function appendMessage(role, text) {
         localStorage.setItem('vino_lang', currentLang);
         updateUI();
     }
-    // 添加这个函数来切换密码可见性
-    function togglePassword() {
-        const passInput = document.getElementById('login-pass');
-        // 如果当前是密码模式，就换成文本模式；反之亦然
-        if (passInput.type === 'password') {
-            passInput.type = 'text';
-        } else {
-            passInput.type = 'password';
-        }
-    }
+
    async function handleLogin() {
     const user = document.getElementById('login-user').value;
     const pass = document.getElementById('login-pass').value;

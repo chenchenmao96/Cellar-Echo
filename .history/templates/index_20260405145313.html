@@ -434,20 +434,16 @@ async function sendMessage() {
         loadingDiv.innerHTML = `<b>AI</b><span>Error: ${error}</span>`;
     }
 }
-function appendMessage(role, text) {
-    const container = document.getElementById('chat-container');
-    const div = document.createElement('div');
-    
-    // 👈 核心修改：将 assistant 角色也映射到 ai-msg
-    const roleClass = (role === 'user') ? 'user-msg' : 'ai-msg';
-    div.className = `msg ${roleClass}`;
-    
-    const label = role === 'user' ? (currentLang === 'zh' ? '您' : 'You') : 'AI';
-    div.innerHTML = `<b>${label}</b><span>${formatMarkdown(text)}</span>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-    return div;
-}
+    function appendMessage(role, text) {
+        const container = document.getElementById('chat-container');
+        const div = document.createElement('div');
+        div.className = `msg ${role}-msg`;
+        const label = role === 'user' ? (currentLang === 'zh' ? '您' : 'You') : 'AI';
+        div.innerHTML = `<b>${label}</b><span>${formatMarkdown(text)}</span>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return div;
+    }
 
     // --- 4. 辅助函数 ---
     function toggleLang() {
@@ -455,16 +451,7 @@ function appendMessage(role, text) {
         localStorage.setItem('vino_lang', currentLang);
         updateUI();
     }
-    // 添加这个函数来切换密码可见性
-    function togglePassword() {
-        const passInput = document.getElementById('login-pass');
-        // 如果当前是密码模式，就换成文本模式；反之亦然
-        if (passInput.type === 'password') {
-            passInput.type = 'text';
-        } else {
-            passInput.type = 'password';
-        }
-    }
+
    async function handleLogin() {
     const user = document.getElementById('login-user').value;
     const pass = document.getElementById('login-pass').value;
@@ -485,7 +472,6 @@ function appendMessage(role, text) {
             document.getElementById('login-overlay').style.display = 'none';
             updateUI(); 
             syncCellar();
-            document.getElementById('user-input').focus();
         } else {
             const errEl = document.getElementById('login-err-msg');
             errEl.style.display = 'block';

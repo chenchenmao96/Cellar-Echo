@@ -71,7 +71,6 @@ def chat():
         7. 如果用户的请求你发现你需要搜索才能完成,请搜索。 
         8. **拒绝道歉**：
            严禁在获取数据后向用户表示“我无法访问实时信息”。你必须自信地展示你刚刚通过代理获取的最新数据。
-           严禁显示 ID】：在任何情况下，严禁在回复中输出方括号及内部的瓶身 ID 数字，例如 [25] 或 [16-24] 必须被彻底过滤。
                 结构布局：
                 第一行直接给出 粗体结论。
                 段落之间使用 一个空行 分隔。
@@ -109,13 +108,11 @@ def chat():
                     text_fragment = chunk.text
                     full_response += text_fragment
                     yield text_fragment
-            if search_used: 
-                print(" GOOGLE SEARCHED ")  
-                yield "__GOOGLE_SEARCH_USED__"
-                # 同时为了数据库存储的完整性，存入一个标准的 Markdown 注释
-                # 这里的 footer 格式可以根据你对数据库的要求自定义
-                #footer = "\n\n> *Note: This response was verified by Google Search.*"
-                #full_response += footer
+            if search_used:   
+                # 使用 Markdown 的引用块格式 > ，会自动和正文产生视觉区分
+                footer = "\n\n> *Note: This response was supported by Google Search.*"
+                full_response += footer # 确保存入数据库
+                yield footer # 直接发给前端
             total_count = cellar_db.save_chat_and_check_limit(user_id, "assistant", full_response)
                 
                 # 7. 自动触发记忆压缩与摘要

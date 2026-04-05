@@ -109,8 +109,7 @@ def chat():
                     text_fragment = chunk.text
                     full_response += text_fragment
                     yield text_fragment
-            if search_used: 
-                print(" GOOGLE SEARCHED ")  
+            if search_used:   
                 yield "__GOOGLE_SEARCH_USED__"
                 # 同时为了数据库存储的完整性，存入一个标准的 Markdown 注释
                 # 这里的 footer 格式可以根据你对数据库的要求自定义
