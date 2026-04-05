@@ -81,18 +81,11 @@ body {
 
         /* --- 3. 主界面布局 --- */
         .header {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 12px 0; /* 左右 padding 交给 body 或容器 */
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--sidebar-bg);
-    /* 新增：让顶栏也与聊天区保持相同的宽度和居中对齐 */
-    width: 100%;
-    max-width: 850px;
-    margin-left: auto;
-    margin-right: auto;
-}
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 12px; margin-bottom: 15px;
+            border-bottom: 1px solid var(--sidebar-bg);
+        }
+
         #ui-title { font-size: 1.4rem; font-weight: 500; color: var(--primary-blue); }
 
         /* --- 聊天区域：增加 iPad 阅读舒适度 --- */
@@ -246,16 +239,6 @@ body {
 .search-tip img {
     filter: grayscale(100%); /* 图标置灰，保持界面简洁 */
     opacity: 0.6;
-}
-/* 保护移动端表格不撑破页面 */
-#chat-container span {
-    word-break: break-word; /* 防止长单词撑破 */
-}
-
-#chat-container table {
-    display: block;
-    overflow-x: auto; /* 只有表格内部可以横向滚动，页面不乱跑 */
-    white-space: nowrap;
 }
     </style>
 </head>
@@ -482,17 +465,12 @@ async function sendMessage() {
     } catch (error) {
         loadingDiv.innerHTML = `<b>AI</b><span>Error: ${error}</span>`;
     }finally {
+        // --- 核心修复：无论成功还是报错，最后都要恢复状态 ---
         isThinking = false;
         sendBtn.disabled = false; 
         sendBtn.style.opacity = "1"; 
         sendBtn.style.cursor = "pointer";
-        
-        // 如果不是移动端（屏幕宽度 > 768px），才自动聚焦
-        if (window.innerWidth > 768) {
-            input.focus();
-        } else {
-            input.blur(); // 移动端发送后收起键盘，方便看回复
-        }
+        input.focus(); // 自动聚焦，方便连续咨询 2015 Dom Pérignon 等资产情况
     }
 }
 function appendMessage(role, text) {

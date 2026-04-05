@@ -7,32 +7,29 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         /* --- 1. Gemini Light 核心配色变量 --- */
-        /* --- 全局布局重构 --- */
-:root {
-    /* 之前的变量保持不变 */
-    --primary-blue: #0b57d0;
-    --bg-main: #ffffff;
-    --sidebar-bg: #f0f4f9;
-    --text-main: #1f1f1f;
-    --text-sub: #444746;
-    --border: #c4c7c5;
-}
+        :root {
+            --primary-blue: #0b57d0;    /* Gemini 经典蓝 */
+            --bg-main: #ffffff;         /* 纯白背景 */
+            --sidebar-bg: #f0f4f9;      /* 浅灰蓝背景（用于输入框和气泡） */
+            --text-main: #1f1f1f;       /* 近黑色文字 */
+            --text-sub: #444746;        /* 次要灰色文字 */
+            --border: #c4c7c5;          /* 柔和边框色 */
+            --error: #b3261e;           /* 错误红 */
+        }
 
-* { box-sizing: border-box; } /* 确保所有边距不撑开容器 */
-
-body {
-    font-family: 'Google Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    margin: 0 auto;
-    /* 关键：使用 dvh (Dynamic Viewport Height) 自动避开工具栏 */
-    height: 100dvh; 
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* 防止整体滚动，只让聊天区滚动 */
-    /* 适配刘海屏和底部手势条 */
-    padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
-}
+        body {
+            font-family: 'Google Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
 
         /* --- 2. 登录遮罩层 (Gemini Light 风格) --- */
         #login-overlay {
@@ -81,33 +78,23 @@ body {
 
         /* --- 3. 主界面布局 --- */
         .header {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 12px 0; /* 左右 padding 交给 body 或容器 */
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--sidebar-bg);
-    /* 新增：让顶栏也与聊天区保持相同的宽度和居中对齐 */
-    width: 100%;
-    max-width: 850px;
-    margin-left: auto;
-    margin-right: auto;
-}
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 12px; margin-bottom: 15px;
+            border-bottom: 1px solid var(--sidebar-bg);
+        }
+
         #ui-title { font-size: 1.4rem; font-weight: 500; color: var(--primary-blue); }
 
-        /* --- 聊天区域：增加 iPad 阅读舒适度 --- */
-#chat-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 850px; /* iPad 优化：防止文字行过长，提升可读性 */
-    margin: 0 auto;
-}
+        #chat-container {
+            flex: 1; overflow-y: auto; padding: 10px;
+            display: flex; flex-direction: column;
+        }
 
-        
+        .msg {
+            margin-bottom: 24px; line-height: 1.6; padding: 12px 20px;
+            border-radius: 24px; max-width: 85%;
+            font-size: 1.05rem;
+        }
 
         /* 用户消息：浅灰色背景气泡 */
         .user-msg { background: var(--sidebar-bg); color: var(--text-main); margin-left: auto; }
@@ -124,47 +111,25 @@ body {
         .user-msg b { color: var(--text-sub); }
        
         /* --- 4. 底部输入框 --- */
-        /* --- 底部输入区：解决遮挡与悬浮感 --- */
-.input-area-wrapper {
-    width: 100%;
-    background: var(--bg-main);
-    border-top: 1px solid rgba(0,0,0,0.05);
-    /* 关键：动态计算底部间距，避开 iPhone/iPad 的 Home 条 */
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 15px)) 16px;
-}
+        .input-area-wrapper { padding: 10px 0 20px 0; }
+        .input-area {
+            display: flex; gap: 10px; background: var(--sidebar-bg);
+            padding: 10px 20px; border-radius: 32px; align-items: center;
+            transition: box-shadow 0.2s;
+        }
+        .input-area:focus-within { box-shadow: 0 1px 6px rgba(32,33,36,0.2); background: white; border: 1px solid var(--border); }
 
-.input-area {
-    display: flex;
-    gap: 10px;
-    background: var(--sidebar-bg);
-    padding: 8px 16px;
-    border-radius: 28px;
-    align-items: center;
-    max-width: 800px; /* iPad 优化：输入框不横跨整个屏幕 */
-    margin: 0 auto;
-    transition: all 0.2s;
-}
+        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); outline: none; font-size: 1rem; }
 
-.input-area:focus-within {
-    background: white;
-    box-shadow: 0 0 0 2px var(--primary-blue);
-}
-     #user-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    outline: none;
-    font-size: 16px; /* 关键：移动端字号不小于16px可防止 iOS 自动缩放 */
-    padding: 8px 0;
-}
+        /* --- 5. 手机版适配 --- */
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .header { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .controls { width: 100%; display: flex; justify-content: space-between; }
+            .msg { max-width: 92%; font-size: 1rem; }
+            .login-card { width: 88%; padding: 30px 20px; }
+        }
 
-/* 消息气泡微调 */
-.msg {
-    max-width: 85%;
-    margin-bottom: 20px;
-}
-     
         button.icon-btn {
             background: transparent; border: none; color: var(--text-sub);
             cursor: pointer; padding: 8px; border-radius: 50%;
@@ -246,16 +211,6 @@ body {
 .search-tip img {
     filter: grayscale(100%); /* 图标置灰，保持界面简洁 */
     opacity: 0.6;
-}
-/* 保护移动端表格不撑破页面 */
-#chat-container span {
-    word-break: break-word; /* 防止长单词撑破 */
-}
-
-#chat-container table {
-    display: block;
-    overflow-x: auto; /* 只有表格内部可以横向滚动，页面不乱跑 */
-    white-space: nowrap;
 }
     </style>
 </head>
@@ -482,17 +437,12 @@ async function sendMessage() {
     } catch (error) {
         loadingDiv.innerHTML = `<b>AI</b><span>Error: ${error}</span>`;
     }finally {
+        // --- 核心修复：无论成功还是报错，最后都要恢复状态 ---
         isThinking = false;
         sendBtn.disabled = false; 
         sendBtn.style.opacity = "1"; 
         sendBtn.style.cursor = "pointer";
-        
-        // 如果不是移动端（屏幕宽度 > 768px），才自动聚焦
-        if (window.innerWidth > 768) {
-            input.focus();
-        } else {
-            input.blur(); // 移动端发送后收起键盘，方便看回复
-        }
+        input.focus(); // 自动聚焦，方便连续咨询 2015 Dom Pérignon 等资产情况
     }
 }
 function appendMessage(role, text) {
