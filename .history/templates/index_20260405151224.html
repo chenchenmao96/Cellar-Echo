@@ -354,7 +354,7 @@ async function sendMessage() {
     const input = document.getElementById('user-input');
     const container = document.getElementById('chat-container');
     const message = input.value.trim();
-    const sendBtn = document.getElementById('send-btn'); // 👈 核心修复：添加这一行！
+    
     if (!message) return;
     // --- 1. 进入“思考状态” ---
     isThinking = true;
@@ -436,13 +436,6 @@ async function sendMessage() {
         }
     } catch (error) {
         loadingDiv.innerHTML = `<b>AI</b><span>Error: ${error}</span>`;
-    }finally {
-        // --- 核心修复：无论成功还是报错，最后都要恢复状态 ---
-        isThinking = false;
-        sendBtn.disabled = false; 
-        sendBtn.style.opacity = "1"; 
-        sendBtn.style.cursor = "pointer";
-        input.focus(); // 自动聚焦，方便连续咨询 2015 Dom Pérignon 等资产情况
     }
 }
 function appendMessage(role, text) {

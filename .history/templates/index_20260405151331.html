@@ -354,7 +354,7 @@ async function sendMessage() {
     const input = document.getElementById('user-input');
     const container = document.getElementById('chat-container');
     const message = input.value.trim();
-    const sendBtn = document.getElementById('send-btn'); // 👈 核心修复：添加这一行！
+    
     if (!message) return;
     // --- 1. 进入“思考状态” ---
     isThinking = true;
