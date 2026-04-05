@@ -203,37 +203,30 @@ body {
 
 /* 8. Markdown 渲染美化 (配合 marked.js) */
 /* 针对 AI 内部的表格和 Markdown 进行全宽适配 */
-/* --- 8. Markdown 渲染美化：完全还原 Gemini 风格 --- */
 #chat-container table {
     width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0;
-    /* 关键：去掉 display: block，改用 table 布局确保宽度均匀分布 */
-    display: table; 
-    font-size: 0.95rem;
-}
-/* --- 修复：极致简约的 Gemini 表格线 --- */
-#chat-container th {
-    /* 👈 关键：改为 1px 且使用非常浅的灰色，而不是深色变量 */
-    border-bottom: 1px solid #e0e2e6; 
-    padding: 16px 12px;
-    text-align: left;
-    font-weight: 500; /* Gemini 的表头通常不是大粗体，而是中等字重 */
-    color: var(--text-main);
+    max-width: 100%;
+    /* 👈 关键：合并边框并移除外框 */
+    border-collapse: collapse; 
+    margin: 20px 0;
     background: transparent;
+}
+#chat-container th {
+    /* 👈 关键：只保留底部的横线，不设竖线 */
+    border-bottom: 1.5px solid var(--text-main); 
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-main);
+    background: transparent; /* 移除表头背景色，保持通透感 */
 }
 
 #chat-container td {
-    /* 👈 关键：内容行的线要更浅，几乎若隐若现 */
-    border-bottom: 1px solid #f1f3f4; 
-    padding: 20px 12px;
-    color: var(--text-main);
-    vertical-align: top;
-}
-/* 确保第一列的加粗不会显得突兀 */
-#chat-container td:first-child {
-    font-weight: 500;
-    color: var(--text-main);
+    /* 👈 关键：行与行之间用极淡的细线区分 */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08); 
+    padding: 14px 10px;
+    color: var(--text-sub);
+    vertical-align: middle;
 }
 /* 移除最后一行底部的线，让整体感更强 */
 #chat-container tr:last-child td {
@@ -298,13 +291,10 @@ body {
 #chat-container span {
     word-break: break-word; /* 防止长单词撑破 */
 }
-
-/* 响应式保护：在移动端自动包裹一层横向滚动 */
-.table-wrapper {
-    width: 100%;
+/* 保持移动端横向滑动功能，防止撑破布局 */
+#chat-container .table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin-bottom: 16px;
 }
 #chat-container table::-webkit-scrollbar {
     display: none; /* 彻底移除表格内部的滑动条视觉干扰 */

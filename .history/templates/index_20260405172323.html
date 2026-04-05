@@ -212,28 +212,30 @@ body {
     display: table; 
     font-size: 0.95rem;
 }
-/* --- 修复：极致简约的 Gemini 表格线 --- */
 #chat-container th {
-    /* 👈 关键：改为 1px 且使用非常浅的灰色，而不是深色变量 */
-    border-bottom: 1px solid #e0e2e6; 
+    /* 顶部标题行：深色、加粗、有明显的底线 */
+    border-bottom: 1px solid var(--text-main);
     padding: 16px 12px;
     text-align: left;
-    font-weight: 500; /* Gemini 的表头通常不是大粗体，而是中等字重 */
+    font-weight: 600;
     color: var(--text-main);
-    background: transparent;
+    white-space: nowrap;
 }
 
 #chat-container td {
-    /* 👈 关键：内容行的线要更浅，几乎若隐若现 */
+    /* 内容行：更淡的线、更宽的间距 */
     border-bottom: 1px solid #f1f3f4; 
-    padding: 20px 12px;
+    padding: 20px 12px; /* 增加上下间距，营造呼吸感 */
     color: var(--text-main);
     vertical-align: top;
+    line-height: 1.5;
 }
-/* 确保第一列的加粗不会显得突兀 */
+
+/* 👈 关键：模仿你截图中的第一列加粗逻辑 */
 #chat-container td:first-child {
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-main);
+    width: 30%; /* 给 Metric 或酒名列预留足够空间 */
 }
 /* 移除最后一行底部的线，让整体感更强 */
 #chat-container tr:last-child td {
