@@ -44,7 +44,7 @@ def chat():
     glassware = user_info.get("glassware")
     fact_memory = user_info.get("fact_memory")
     long_term_summary = user_info.get("summary")
-    recent_history = cellar_db.get_recent_history(user_id, limit=8)
+    recent_history = cellar_db.get_recent_history(user_id, limit=20)
 
         # 2. 获取库存并检查状态
     inventory = cellar_db.get_inventory_for_ai(user_id)
@@ -119,8 +119,8 @@ def chat():
             total_count = cellar_db.save_chat_and_check_limit(user_id, "assistant", full_response)
                 
                 # 7. 自动触发记忆压缩与摘要
-            if total_count > 20:
-                old_text = cellar_db.get_old_messages_for_summary(user_id, limit=12)
+            if total_count > 50:
+                old_text = cellar_db.get_old_messages_for_summary(user_id, limit=40)
                 threading.Thread(
                     target=run_summary_in_background, 
                     args=(user_id, long_term_summary, old_text)

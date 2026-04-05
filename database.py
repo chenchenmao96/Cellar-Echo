@@ -106,7 +106,7 @@ class CellarDB:
         })
         return self.history_collection.count_documents({"user_id": user_id})
 
-    def get_old_messages_for_summary(self, user_id, limit=12):
+    def get_old_messages_for_summary(self, user_id, limit=40):
         old_chats = list(self.history_collection.find({"user_id": user_id})
                          .sort("timestamp", 1).limit(limit))
         text_to_summarize = "\n".join([f"{c['role']}: {c['content']}" for c in old_chats])
