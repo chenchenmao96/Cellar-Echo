@@ -56,10 +56,9 @@ def chat():
         - 硬件资产：{glassware}
         - 核心背景事实：{fact_memory} 
         - 长期记忆摘要：{long_term_summary}
-        - 最近的聊天记录 :     {recent_history}
         
         【实时酒柜数据】：
-        {inventory} 
+        {inventory} 和 {recent_history}
         
         【强制执行指令】：
         1. **数据映射确认**：用户提到的任何“CellarTracker”、“我的库存”、“酒柜”、“Inventory”或“我的酒”，指的【全部且仅限】于上方提供的“实时酒柜数据”。
