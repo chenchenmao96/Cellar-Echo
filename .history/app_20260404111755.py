@@ -11,8 +11,6 @@ import json
 from flask import stream_with_context
 import urllib.parse  # 👈 必须在 app.py 顶部导入这个库
 import re
-import google.generativeai as genai
-from google.generativeai.types import content_types
 app = Flask(__name__)
 
 # 配置 DeepSeek
@@ -314,8 +312,7 @@ def chat():
                     # 一个简单的判断逻辑
                     is_english = all(ord(char) < 128 for char in user_query[:10]) 
                     search_msg = f"🔍 CellarEcho 正在执行深度搜索: {search_query}" if not is_english else f"🔍 CellarEcho is performing deep search: {search_query}"
-                    print(f"[SEARCH_DEBUG] User: {user_id}, Query: {search_query}")
-            
+                    
                     #print(search_msg) # 终端看
                     yield f"{search_msg}\n\n"
                     #print(f"首次呼叫泄露的 DSML 内容: \n{ai_message.content}")
@@ -338,19 +335,10 @@ def chat():
                         "Now, directly provide the final professional MW/MS table and summary."
                     )
                 })
-                clean_messages = []
-                for msg in messages:
-                    if msg.get("role") == "assistant" and "tool_calls" in msg:
-                        # 只保留 content，去掉 tool_calls
-                        clean_messages.append({"role": "assistant", "content": msg.get("content", "")})
-                    else:
-                        clean_messages.append(msg)
-
                 # 3. 第三步：带着搜到的数据，发起【流式】最终回答
                 response = client.chat.completions.create(
                     model="deepseek-chat",
-                    messages=clean_messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
+                    messages=messages,
                     stream=True  # 👈 拿到资料后，开启流式传输
                 )
                 # # app.py 中的 generate() 函数
@@ -373,7 +361,6 @@ def chat():
                 response = client.chat.completions.create(
                     model="deepseek-chat",
                     messages=messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
                     stream=True
                 )
             for chunk in response:

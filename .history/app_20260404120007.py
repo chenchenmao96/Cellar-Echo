@@ -11,8 +11,6 @@ import json
 from flask import stream_with_context
 import urllib.parse  # 👈 必须在 app.py 顶部导入这个库
 import re
-import google.generativeai as genai
-from google.generativeai.types import content_types
 app = Flask(__name__)
 
 # 配置 DeepSeek

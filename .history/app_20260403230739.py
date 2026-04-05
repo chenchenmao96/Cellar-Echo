@@ -11,8 +11,6 @@ import json
 from flask import stream_with_context
 import urllib.parse  # 👈 必须在 app.py 顶部导入这个库
 import re
-import google.generativeai as genai
-from google.generativeai.types import content_types
 app = Flask(__name__)
 
 # 配置 DeepSeek
@@ -262,11 +260,8 @@ def chat():
         5. 如果需要额外的信息从用户，可以随时问用户一些帮助你更好回答的信息。 
         6. 禁止使用：严禁使用 ### 标题、--- 分割线或 [!TIP] 等符号。
         7. 如果用户的请求你发现你需要搜索才能完成，这个时候你可以用WINE_TOOLS。WINETOOLS就是个搜索引擎keyword generator的智能代理，只能代理的答案是不能直接给用户看的，只能用来搜索用户想要的答案。在你拿到搜索的答案后，你会给出最合适的回答。  
-        8. **内部代理协议（Internal Proxy Protocol）**：
-           WINE_TOOLS 是你的专属关键词生成代理。它输出的任何查询指令均属于“内部中间件数据”，严禁以任何形式（包括 DSML 标签）展示给用户。     
-        9. **闭环汇报逻辑**：
-           你必须等待 WINE_TOOLS 返回实时搜索结果（如 2014 Paul Hobbs 的最新技术参数）后，再整合这些外部情报，以 Master of Wine 的身份给出最终结论。
-           
+        8. 若库存或记忆已足够回答，则禁止搜索。
+        9. 每次用户请求最多只允许一次搜索轮次；拿到搜索结果后必须直接生成最终答案。
         10. **拒绝道歉**：
            严禁在获取数据后向用户表示“我无法访问实时信息”。你必须自信地展示你刚刚通过代理获取的最新数据。
                 结构布局：
@@ -292,21 +287,23 @@ def chat():
         full_reply = ""
         try:
             # 5. 开启流式调用
-            response = client.chat.completions.create(
+            first_response = client.chat.completions.create(
                 model="deepseek-chat", # 👈 确保使用极速的 V3 模型
                 messages=messages,
                 tools=WINE_TOOLS,  # 👈 挂载你刚才定义的“全维度感知协议”
                 tool_choice="auto", # 👈 让 AI 自主决定是否需要动用搜索
                 stream=False
             )
-            ai_message = response.choices[0].message
-            # 2. 第二步：判断是否需要执行“脑补”后的搜索
+            ai_message = first_response.choices[0].message
+            # 2. 第二步：判断是否需要执行“脑补”后的搜索          
             if ai_message.tool_calls:
                 # 将 AI 的搜索意图存入上下文
                 # ✨ 核心修复：物理擦除 AI 的“碎碎念（DSML）”
                 # 这样第二次呼叫时，AI 就看不到任何干扰它认知的乱码标签了
                 ai_message.content = "" 
+
                 messages.append(ai_message)
+                
                 for tool_call in ai_message.tool_calls:
                     # 这里的 query 就是 AI 结合你的圣路易斯位置和 WSET 3 背景脑补出的词
                     search_query = json.loads(tool_call.function.arguments).get("query")
@@ -314,8 +311,7 @@ def chat():
                     # 一个简单的判断逻辑
                     is_english = all(ord(char) < 128 for char in user_query[:10]) 
                     search_msg = f"🔍 CellarEcho 正在执行深度搜索: {search_query}" if not is_english else f"🔍 CellarEcho is performing deep search: {search_query}"
-                    print(f"[SEARCH_DEBUG] User: {user_id}, Query: {search_query}")
-            
+                    
                     #print(search_msg) # 终端看
                     yield f"{search_msg}\n\n"
                     #print(f"首次呼叫泄露的 DSML 内容: \n{ai_message.content}")
@@ -333,24 +329,16 @@ def chat():
                     "role": "system",
                     "content": (
                         "DATA ACQUISITION COMPLETE. All necessary wine data is now in the context. "
-                        "STRICT RULE: Do not perform any more tool calls or reasoning. "
-                        "Do not output <|DSML|> or technical tags. "
-                        "Now, directly provide the final professional MW/MS table and summary."
+                        "Do not perform any more tool calls. "
+                        "Do not suggest further searching. "
+                        "Do not output DSML, XML, function call syntax, or internal reasoning. "
+                        "Now directly provide the final professional MW/MS answer."
                     )
                 })
-                clean_messages = []
-                for msg in messages:
-                    if msg.get("role") == "assistant" and "tool_calls" in msg:
-                        # 只保留 content，去掉 tool_calls
-                        clean_messages.append({"role": "assistant", "content": msg.get("content", "")})
-                    else:
-                        clean_messages.append(msg)
-
                 # 3. 第三步：带着搜到的数据，发起【流式】最终回答
                 response = client.chat.completions.create(
                     model="deepseek-chat",
-                    messages=clean_messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
+                    messages=messages,
                     stream=True  # 👈 拿到资料后，开启流式传输
                 )
                 # # app.py 中的 generate() 函数
@@ -373,7 +361,6 @@ def chat():
                 response = client.chat.completions.create(
                     model="deepseek-chat",
                     messages=messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
                     stream=True
                 )
             for chunk in response:

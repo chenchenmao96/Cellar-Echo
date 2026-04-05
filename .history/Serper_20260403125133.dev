@@ -1,0 +1,13 @@
+import requests
+
+def perform_google_search(query):
+    # 自动加上地理位置，让搜索结果更贴近你在圣路易斯的生活
+    enhanced_query = f"{query} in St. Louis Missouri"
+    url = "https://google.serper.dev/search"
+    headers = {'X-API-KEY': '你的_SERPER_API_KEY', 'Content-Type': 'application/json'}
+    response = requests.post(url, headers=headers, json={"q": enhanced_query})
+    
+    # 提取前 3 条结果的摘要
+    results = response.json().get('organic', [])
+    snippets = [f"{r['title']}: {r['snippet']}" for r in results[:3]]
+    return "\n".join(snippets)

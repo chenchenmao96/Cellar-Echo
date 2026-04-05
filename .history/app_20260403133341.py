@@ -10,9 +10,7 @@ from flask import Response
 import json
 from flask import stream_with_context
 import urllib.parse  # 👈 必须在 app.py 顶部导入这个库
-import re
-import google.generativeai as genai
-from google.generativeai.types import content_types
+
 app = Flask(__name__)
 
 # 配置 DeepSeek
@@ -23,18 +21,30 @@ client = OpenAI(
 
 def perform_google_search(query, user_facts=None):
     """
-    纯净版搜索执行器：只负责执行 AI 脑补后的完美指令。
+    智能搜索：结合用户地理位置并定向 Wine-Searcher。
     """
     url = "https://google.serper.dev/search"
     
-    # 这里的 query 已经是 AI 结合了 [2014 Paul Hobbs] + [St. Louis] + [Wine-Searcher] 的成品
-    payload = json.dumps({
-        "q": query, 
-        "gl": "us", 
-        "hl": "en",
-        "num": 4 
-    })
+    # 1. 动态提取地理位置
+    location_str = ""
+    if user_facts:
+        location_str = user_facts.get("location") or user_facts.get("city") or ""
     
+    # 2. 构造增强查询词
+    # 如果是查价格/评分，强制定向到 Wine-Searcher 以获取专业数据
+    search_query = query
+    if any(k in query.lower() for k in ["price", "score", "rating", "价格", "评分"]):
+        search_query += " site:wine-searcher.com"
+    
+    # 加入位置限制（如：St. Louis）提高本地零售搜索精度
+    search_query = f"{search_query} {location_str}".strip()
+    
+    payload = json.dumps({
+        "q": search_query, 
+        "gl": "us", 
+        "hl": "zh-cn",
+        "num": 4 # 取前 4 条结果
+    })
     headers = {
         'X-API-KEY': os.environ.get("SERPER_API_KEY"),
         'Content-Type': 'application/json'
@@ -43,8 +53,6 @@ def perform_google_search(query, user_facts=None):
     try:
         response = requests.post(url, headers=headers, data=payload, timeout=8)
         results = response.json()
-        
-        # 提取摘要
         snippets = [f"标题: {r['title']}\n内容: {r['snippet']}" for r in results.get('organic', [])]
         return "\n\n".join(snippets) if snippets else "未找到相关实时互联网信息。"
     except Exception as e:
@@ -68,8 +76,6 @@ WINE_TOOLS = [
                深度扫描用户画像中的‘长期关注轨迹’。不设预设维度，需根据用户过往的好奇心分布，自动识别其此刻对资产价值、技术参数、文化历史或使用场景的潜在偏好。
             4. **指令压缩与扩充（Synthesis）**：
                将上述所有隐性变量（显性实体+隐性环境+潜在兴趣）压缩为一个高度精准、符合专业文献检索逻辑的综合关键词字符串。
-            【核心语言规范】：
-            无论用户使用何种语言提问，生成的 query 必须为英文。
             """,
             "parameters": {
                 "type": "object",
@@ -81,7 +87,8 @@ WINE_TOOLS = [
         }
     }
 ]
-
+# 你的杯型偏好
+MY_GLASSWARE = "Zalto Universal, Josephine No. 3, Zalto Bordeaux, Grassl Cru"
 
 @app.route('/')
 def index():
@@ -261,14 +268,6 @@ def chat():
         4. **响应要求**：如果用户问“我有多少酒”或“我有什么酒”，你必须通过对上方 {inventory} 数据的统计和梳理直接给出答案。
         5. 如果需要额外的信息从用户，可以随时问用户一些帮助你更好回答的信息。 
         6. 禁止使用：严禁使用 ### 标题、--- 分割线或 [!TIP] 等符号。
-        7. 如果用户的请求你发现你需要搜索才能完成，这个时候你可以用WINE_TOOLS。WINETOOLS就是个搜索引擎keyword generator的智能代理，只能代理的答案是不能直接给用户看的，只能用来搜索用户想要的答案。在你拿到搜索的答案后，你会给出最合适的回答。  
-        8. **内部代理协议（Internal Proxy Protocol）**：
-           WINE_TOOLS 是你的专属关键词生成代理。它输出的任何查询指令均属于“内部中间件数据”，严禁以任何形式（包括 DSML 标签）展示给用户。     
-        9. **闭环汇报逻辑**：
-           你必须等待 WINE_TOOLS 返回实时搜索结果（如 2014 Paul Hobbs 的最新技术参数）后，再整合这些外部情报，以 Master of Wine 的身份给出最终结论。
-           
-        10. **拒绝道歉**：
-           严禁在获取数据后向用户表示“我无法访问实时信息”。你必须自信地展示你刚刚通过代理获取的最新数据。
                 结构布局：
                 第一行直接给出 粗体结论。
                 段落之间使用 一个空行 分隔。
@@ -285,8 +284,8 @@ def chat():
     recent_history = cellar_db.get_recent_history(user_id, limit=8)
     messages.extend(recent_history)
     messages.append({"role": "user", "content": user_query})
-    #print(json.dumps(messages, indent=2, ensure_ascii=False))
-    #print("="*80 + "\n")
+    print(json.dumps(messages, indent=2, ensure_ascii=False))
+    print("="*80 + "\n")
 
     def generate():
         full_reply = ""
@@ -297,84 +296,34 @@ def chat():
                 messages=messages,
                 tools=WINE_TOOLS,  # 👈 挂载你刚才定义的“全维度感知协议”
                 tool_choice="auto", # 👈 让 AI 自主决定是否需要动用搜索
-                stream=False
+                stream=True
             )
             ai_message = response.choices[0].message
             # 2. 第二步：判断是否需要执行“脑补”后的搜索
             if ai_message.tool_calls:
                 # 将 AI 的搜索意图存入上下文
-                # ✨ 核心修复：物理擦除 AI 的“碎碎念（DSML）”
-                # 这样第二次呼叫时，AI 就看不到任何干扰它认知的乱码标签了
-                ai_message.content = "" 
                 messages.append(ai_message)
+                
                 for tool_call in ai_message.tool_calls:
                     # 这里的 query 就是 AI 结合你的圣路易斯位置和 WSET 3 背景脑补出的词
                     search_query = json.loads(tool_call.function.arguments).get("query")
-                    #print("searching query: ", search_query)
-                    # 一个简单的判断逻辑
-                    is_english = all(ord(char) < 128 for char in user_query[:10]) 
-                    search_msg = f"🔍 CellarEcho 正在执行深度搜索: {search_query}" if not is_english else f"🔍 CellarEcho is performing deep search: {search_query}"
-                    print(f"[SEARCH_DEBUG] User: {user_id}, Query: {search_query}")
-            
-                    #print(search_msg) # 终端看
-                    yield f"{search_msg}\n\n"
-                    #print(f"首次呼叫泄露的 DSML 内容: \n{ai_message.content}")
+                    print(f"🔍 CellarEcho 正在执行深度搜索: {search_query}")
+                    
                     # 执行真实的搜索
                     search_result = perform_google_search(search_query, fact_memory)
-                    print("searching result: ", search_result)
                     
                     # 将搜索到的专业情报喂给 AI
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
                         "content": search_result
-                    }) 
-                messages.append({
-                    "role": "system",
-                    "content": (
-                        "DATA ACQUISITION COMPLETE. All necessary wine data is now in the context. "
-                        "STRICT RULE: Do not perform any more tool calls or reasoning. "
-                        "Do not output <|DSML|> or technical tags. "
-                        "Now, directly provide the final professional MW/MS table and summary."
-                    )
-                })
-                clean_messages = []
-                for msg in messages:
-                    if msg.get("role") == "assistant" and "tool_calls" in msg:
-                        # 只保留 content，去掉 tool_calls
-                        clean_messages.append({"role": "assistant", "content": msg.get("content", "")})
-                    else:
-                        clean_messages.append(msg)
-
+                    })
+                
                 # 3. 第三步：带着搜到的数据，发起【流式】最终回答
-                response = client.chat.completions.create(
-                    model="deepseek-chat",
-                    messages=clean_messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
-                    stream=True  # 👈 拿到资料后，开启流式传输
-                )
-                # # app.py 中的 generate() 函数
-                # for chunk in response:
-                #     # 🚀 这就是你要的“最原始”的响应对象
-                #     # 它包含了 Model ID、Created Timestamp、以及最关键的 Delta 内容
-                #     print(f"DEBUG RAW CHUNK: {chunk}") 
-
-                #     if chunk.choices[0].delta.content:
-                #         # 这是原始的文本碎片，包含你讨厌的 <|DSML|>
-                #         raw_content = chunk.choices[0].delta.content
-                        
-                #         # 实时打印原始文本，不加任何过滤
-                #         print(raw_content, end="", flush=True)
-                #         full_reply += raw_content
-                #         yield raw_content # 👈 实时推送到前端                 
-            else:
-                # 如果 AI 觉得不需要搜索，直接发起一个流式调用来回答
-                # 或者直接将 ai_message.content 包装成流（这里为了逻辑统一，重新发起流式）
-                response = client.chat.completions.create(
+                final_response = client.chat.completions.create(
                     model="deepseek-chat",
                     messages=messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
-                    stream=True
+                    stream=True  # 👈 拿到资料后，开启流式传输
                 )
             for chunk in response:
                 if chunk.choices[0].delta.content:
@@ -396,7 +345,7 @@ def chat():
                 ).start()
                 
         except Exception as e:
-            yield f"CellarEcho encountered an error: {str(e)}"
+            yield f"CellarEcho 遇到了一个小问题: {str(e)}"
 
     # 8. 返回流式响应
     return Response(generate(), mimetype='text/plain', headers={

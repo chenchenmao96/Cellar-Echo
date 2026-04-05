@@ -11,8 +11,6 @@ import json
 from flask import stream_with_context
 import urllib.parse  # 👈 必须在 app.py 顶部导入这个库
 import re
-import google.generativeai as genai
-from google.generativeai.types import content_types
 app = Flask(__name__)
 
 # 配置 DeepSeek
@@ -349,7 +347,7 @@ def chat():
                 # 3. 第三步：带着搜到的数据，发起【流式】最终回答
                 response = client.chat.completions.create(
                     model="deepseek-chat",
-                    messages=clean_messages,
+                    messages=messages,
                     tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
                     stream=True  # 👈 拿到资料后，开启流式传输
                 )

@@ -11,8 +11,6 @@ import json
 from flask import stream_with_context
 import urllib.parse  # 👈 必须在 app.py 顶部导入这个库
 import re
-import google.generativeai as genai
-from google.generativeai.types import content_types
 app = Flask(__name__)
 
 # 配置 DeepSeek
@@ -306,7 +304,9 @@ def chat():
                 # ✨ 核心修复：物理擦除 AI 的“碎碎念（DSML）”
                 # 这样第二次呼叫时，AI 就看不到任何干扰它认知的乱码标签了
                 ai_message.content = "" 
+
                 messages.append(ai_message)
+                
                 for tool_call in ai_message.tool_calls:
                     # 这里的 query 就是 AI 结合你的圣路易斯位置和 WSET 3 背景脑补出的词
                     search_query = json.loads(tool_call.function.arguments).get("query")
@@ -314,66 +314,38 @@ def chat():
                     # 一个简单的判断逻辑
                     is_english = all(ord(char) < 128 for char in user_query[:10]) 
                     search_msg = f"🔍 CellarEcho 正在执行深度搜索: {search_query}" if not is_english else f"🔍 CellarEcho is performing deep search: {search_query}"
-                    print(f"[SEARCH_DEBUG] User: {user_id}, Query: {search_query}")
-            
+                    
                     #print(search_msg) # 终端看
                     yield f"{search_msg}\n\n"
-                    #print(f"首次呼叫泄露的 DSML 内容: \n{ai_message.content}")
+                    print(f"首次呼叫泄露的 DSML 内容: \n{ai_message.content}")
                     # 执行真实的搜索
                     search_result = perform_google_search(search_query, fact_memory)
                     print("searching result: ", search_result)
-                    
                     # 将搜索到的专业情报喂给 AI
                     messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
                         "content": search_result
-                    }) 
+                    })
+                # 🚀 核心修复：给第二次呼叫打一针“清醒剂”
                 messages.append({
-                    "role": "system",
-                    "content": (
-                        "DATA ACQUISITION COMPLETE. All necessary wine data is now in the context. "
-                        "STRICT RULE: Do not perform any more tool calls or reasoning. "
-                        "Do not output <|DSML|> or technical tags. "
-                        "Now, directly provide the final professional MW/MS table and summary."
-                    )
-                })
-                clean_messages = []
-                for msg in messages:
-                    if msg.get("role") == "assistant" and "tool_calls" in msg:
-                        # 只保留 content，去掉 tool_calls
-                        clean_messages.append({"role": "assistant", "content": msg.get("content", "")})
-                    else:
-                        clean_messages.append(msg)
-
+                    "role": "system", 
+                    "content": 
+                    "STATE UPDATE: Data acquisition phase is FINISHED. "
+        "The real-time information requested is now available in the preceding 'tool' messages. "
+        "Your internal reasoning is complete. DO NOT output any more tool calls, <|DSML|> tags, or technical reasoning. " })
                 # 3. 第三步：带着搜到的数据，发起【流式】最终回答
                 response = client.chat.completions.create(
                     model="deepseek-chat",
-                    messages=clean_messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
+                    messages=messages,
                     stream=True  # 👈 拿到资料后，开启流式传输
                 )
-                # # app.py 中的 generate() 函数
-                # for chunk in response:
-                #     # 🚀 这就是你要的“最原始”的响应对象
-                #     # 它包含了 Model ID、Created Timestamp、以及最关键的 Delta 内容
-                #     print(f"DEBUG RAW CHUNK: {chunk}") 
-
-                #     if chunk.choices[0].delta.content:
-                #         # 这是原始的文本碎片，包含你讨厌的 <|DSML|>
-                #         raw_content = chunk.choices[0].delta.content
-                        
-                #         # 实时打印原始文本，不加任何过滤
-                #         print(raw_content, end="", flush=True)
-                #         full_reply += raw_content
-                #         yield raw_content # 👈 实时推送到前端                 
             else:
                 # 如果 AI 觉得不需要搜索，直接发起一个流式调用来回答
                 # 或者直接将 ai_message.content 包装成流（这里为了逻辑统一，重新发起流式）
                 response = client.chat.completions.create(
                     model="deepseek-chat",
                     messages=messages,
-                    tool_choice="none" ,    # 👈 加上这一行，禁止模型再次输出 DSML
                     stream=True
                 )
             for chunk in response:
