@@ -205,6 +205,33 @@ body {
 /* 针对 AI 内部的表格和 Markdown 进行全宽适配 */
 /* --- 8. Markdown 渲染美化：完全还原 Gemini 风格 --- */
 
+/* --- 修复：极致简约的 Gemini 表格线 --- */
+#chat-container th {
+    /* 👈 关键：改为 1px 且使用非常浅的灰色，而不是深色变量 */
+    border-bottom: 1px solid #e0e2e6; 
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: 500; /* Gemini 的表头通常不是大粗体，而是中等字重 */
+    color: var(--text-main);
+    background: transparent;
+}
+
+#chat-container td {
+    /* 👈 关键：内容行的线要更浅，几乎若隐若现 */
+    border-bottom: 1px solid #f1f3f4; 
+    padding: 20px 12px;
+    color: var(--text-main);
+    vertical-align: top;
+}
+/* 确保第一列的加粗不会显得突兀 */
+#chat-container td:first-child {
+    font-weight: 500;
+    color: var(--text-main);
+}
+/* 移除最后一行底部的线，让整体感更强 */
+#chat-container tr:last-child td {
+    border-bottom: none;
+}
 
 #chat-container blockquote { 
     border-left: 4px solid var(--primary-blue); /* 引用框左侧蓝条 */
@@ -265,80 +292,16 @@ body {
     word-break: break-word; /* 防止长单词撑破 */
 }
 
-/* --- 8. 极致 Gemini 简约表格：无竖线 + 隐形滚动 --- */
 .table-wrapper {
     width: 100%;
     margin: 16px 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* 默认隐藏滚动条 (Firefox) */
+    /* 默认隐藏滚动条 (Firefox & IE) */
     scrollbar-width: none; 
 }
-
-/* 默认隐藏滚动条 (Chrome, Safari) */
-.table-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-/* 👈 关键：只有鼠标悬停在表格上时，滚动条才轻盈显现 */
-.table-wrapper:hover::-webkit-scrollbar {
-    display: block;
-    height: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-    background-color: #dadce0; /* 极淡的灰色 */
-    border-radius: 10px;
-}
-
-#chat-container table {
-    display: table; /* 确保在 iPad 上能自动撑满宽度 */
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-    white-space: nowrap; /* 强制不换行以触发滑动 */
-}
-
-#chat-container th {
-    /* 👈 修复：改为 1px 极细浅灰线，绝不是加粗黑杠 */
-    border-bottom: 1px solid #e8eaed; 
-    padding: 16px 12px;
-    text-align: left;
-    font-weight: 500;
-    color: var(--text-main);
-}
-
-#chat-container td {
-    border-bottom: 1px solid #f1f3f4;
-    padding: 18px 12px;
-    color: var(--text-main);
-    vertical-align: top;
-}
-/* 👈 针对手机和平板：让滚动条在滑动时自动显示，平时不占空间 */
-@media (max-width: 1024px) {
-    .table-wrapper {
-        scrollbar-width: thin; /* 给安卓/PC 触屏一个极细指示 */
-    }
-    .table-wrapper::-webkit-scrollbar {
-        display: block;
-        height: 3px;
-    }
-    .table-wrapper::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.1); /* 极其透明的指示条 */
-    }
-}
-/* 第一列加重，符合 Gemini 数据展示习惯 */
-
-#chat-container td:first-child {
-    font-weight: 500;
-    color: #000;
-    /* 👈 建议：给第一列(如酒名)固定约 30% 的宽度，防止数据太挤 */
-    width: 30%; 
-    min-width: 120px;
-}
-
-#chat-container tr:last-child td {
-    border-bottom: none;
+#chat-container table::-webkit-scrollbar {
+    display: none; /* 彻底移除表格内部的滑动条视觉干扰 */
 }
 
     </style>

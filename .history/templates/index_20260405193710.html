@@ -314,19 +314,7 @@ body {
     color: var(--text-main);
     vertical-align: top;
 }
-/* 👈 针对手机和平板：让滚动条在滑动时自动显示，平时不占空间 */
-@media (max-width: 1024px) {
-    .table-wrapper {
-        scrollbar-width: thin; /* 给安卓/PC 触屏一个极细指示 */
-    }
-    .table-wrapper::-webkit-scrollbar {
-        display: block;
-        height: 3px;
-    }
-    .table-wrapper::-webkit-scrollbar-thumb {
-        background-color: rgba(0,0,0,0.1); /* 极其透明的指示条 */
-    }
-}
+
 /* 第一列加重，符合 Gemini 数据展示习惯 */
 
 #chat-container td:first-child {
