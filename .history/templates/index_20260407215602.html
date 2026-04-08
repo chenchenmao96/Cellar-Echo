@@ -706,35 +706,22 @@ document.getElementById('user-input').addEventListener('keydown', function(e) {
 });
 
 async function loadChatHistory(userId) {
-    // 如果是 Guest 且没有登录，先不抓取历史
-    if (!userId || userId === "Guest") return;
-
-    try {
-        const response = await fetch(`/get_history?user_id=${userId}`);
-        const data = await response.json();
+    const response = await fetch(`/get_history?user_id=${userId}`);
+    const data = await response.json();
+    
+    if (data.status === "success") {
+        const chatContainer = document.getElementById('chat-container'); // 你的聊天框 ID
+        chatContainer.innerHTML = ''; // 清空加载动画
         
-        if (data.status === "success" && data.history.length > 0) {
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.innerHTML = ''; // 清空欢迎语和加载状态
-            
-            data.history.forEach(msg => {
-                // 👈 修正：调用正确的函数名 appendMessage
-                appendMessage(msg.role, msg.content); 
-            });
-        }
-    } catch (e) {
-        console.error("加载历史失败:", e);
+        data.history.forEach(msg => {
+            // 根据 role 是 'user' 还是 'assistant' 渲染不同的样式
+            appendMessageToUI(msg.role, msg.content); 
+        });
     }
 }
 
-// 修改初始化调用逻辑：确保先加载历史，再更新 UI
-(async () => {
-    if (currentUserId !== "Guest") {
-        await loadChatHistory(currentUserId);
-    }
-    updateUI(); 
-})();
-
+// 建议：在用户登录成功后立即调用此函数
+loadChatHistory(currentUserId);
     updateUI(); // 初始化加载
 </script>
 </body>

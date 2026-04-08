@@ -735,6 +735,8 @@ async function loadChatHistory(userId) {
     updateUI(); 
 })();
 
+// 建议：在用户登录成功后立即调用此函数
+loadChatHistory(currentUserId);
     updateUI(); // 初始化加载
 </script>
 </body>
