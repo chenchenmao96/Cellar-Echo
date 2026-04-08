@@ -642,7 +642,6 @@ function appendMessage(role, text) {
             document.getElementById('user-id').value = currentUserId;
             // 👈 核心：隐藏登录遮罩并更新一次 UI
             document.getElementById('login-overlay').style.display = 'none';
-            await loadChatHistory(currentUserId); // 🚀 新增这一行：登录成功立即拿回记忆
             updateUI(); 
             syncCellar();
             document.getElementById('user-input').focus();
@@ -728,8 +727,15 @@ async function loadChatHistory(userId) {
     }
 }
 
+// 修改初始化调用逻辑：确保先加载历史，再更新 UI
+(async () => {
+    if (currentUserId !== "Guest") {
+        await loadChatHistory(currentUserId);
+    }
+    updateUI(); 
+})();
 
-updateUI(); // 初始化加载
+    updateUI(); // 初始化加载
 </script>
 </body>
 </html>

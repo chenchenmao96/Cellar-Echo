@@ -728,8 +728,15 @@ async function loadChatHistory(userId) {
     }
 }
 
+// 修改初始化调用逻辑：确保先加载历史，再更新 UI
+(async () => {
+    if (currentUserId !== "Guest") {
+        await loadChatHistory(currentUserId);
+    }
+    updateUI(); 
+})();
 
-updateUI(); // 初始化加载
+    updateUI(); // 初始化加载
 </script>
 </body>
 </html>
