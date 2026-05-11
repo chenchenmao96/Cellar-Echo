@@ -185,7 +185,7 @@ def run_summary_in_background(user_id, long_term_summary, old_text):
                 """
 
         res = client.chat.completions.create(
-            model="deepseek-chat",
+            model="deepseek-v4-pro",
             messages=[{"role": "user", "content": task_prompt}],
             response_format={ "type": "json_object" }
         )

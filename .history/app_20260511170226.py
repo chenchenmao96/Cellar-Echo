@@ -267,9 +267,6 @@ def chat():
                         text = chunk.choices[0].delta.content
                         full_reply += text
                         yield text
-                # 标记搜索已使用
-                if ai_message.tool_calls:
-                    yield "__GOOGLE_SEARCH_USED__"
             else:
                 # 无需搜索，直接流式输出
                 direct_stream = client.chat.completions.create(
